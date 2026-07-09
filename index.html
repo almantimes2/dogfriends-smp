@@ -59,26 +59,74 @@
   .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
   .stage { position: relative; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column;
-    align-items: center; gap: 26px; padding: 30px 20px 46px; background: var(--bg); }
+    align-items: center; justify-content: center; gap: 26px; padding: 30px 20px 46px; background: var(--bg); }
 
   .bg-photo { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
   .bg-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
     transform: scale(1.15); filter: blur(26px) saturate(1.15) brightness(1.03); }
 
   .glow { position: absolute; z-index: 1; border-radius: 50%; filter: blur(60px); pointer-events: none; }
-  .glow-a { width: 320px; height: 320px; top: -80px; left: 4%;
-    background: radial-gradient(circle, var(--accent) 0%, transparent 70%); opacity: 0.32;
-    animation: glowDrift1 24s ease-in-out infinite; }
-  .glow-b { width: 260px; height: 260px; bottom: 6%; right: 6%;
-    background: radial-gradient(circle, #4fe3c1 0%, transparent 70%); opacity: 0.28;
-    animation: glowDrift2 28s ease-in-out infinite; }
-  .glow-c { width: 220px; height: 220px; top: 42%; right: 16%;
-    background: radial-gradient(circle, #b18bff 0%, transparent 70%); opacity: 0.26;
-    animation: glowDrift3 32s ease-in-out infinite; }
-  @keyframes glowDrift1 { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(36px,44px) scale(1.18); } }
-  @keyframes glowDrift2 { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-30px,-34px) scale(1.12); } }
-  @keyframes glowDrift3 { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(24px,-28px) scale(0.9); } }
-  @media (prefers-reduced-motion: reduce) { .glow { animation: none; } }
+  .glow-a { width: 320px; height: 320px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    animation: glowRoam1 34s ease-in-out infinite; }
+  .glow-b { width: 260px; height: 260px;
+    background: radial-gradient(circle, #ffffff 0%, transparent 70%);
+    animation: glowRoam2 40s ease-in-out infinite; }
+  .glow-c { width: 220px; height: 220px;
+    background: radial-gradient(circle, #b18bff 0%, transparent 70%);
+    animation: glowRoam3 46s ease-in-out infinite; }
+
+  @keyframes glowRoam1 {
+    0%   { top: -5vh; left: 4%;  opacity: 0; transform: scale(1); }
+    4%   { top: -5vh; left: 4%;  opacity: 0.32; }
+    26%  { top: -5vh; left: 4%;  opacity: 0.32; transform: scale(1.1); }
+    30%  { top: -5vh; left: 4%;  opacity: 0; }
+    32%  { top: 60vh; left: 74%; opacity: 0; transform: scale(1); }
+    36%  { top: 60vh; left: 74%; opacity: 0.3; }
+    58%  { top: 60vh; left: 74%; opacity: 0.3; transform: scale(1.12); }
+    62%  { top: 60vh; left: 74%; opacity: 0; }
+    64%  { top: 80vh; left: 10%; opacity: 0; transform: scale(1); }
+    68%  { top: 80vh; left: 10%; opacity: 0.3; }
+    94%  { top: 80vh; left: 10%; opacity: 0.3; transform: scale(1.05); }
+    98%  { top: 80vh; left: 10%; opacity: 0; }
+    100% { top: -5vh; left: 4%;  opacity: 0; }
+  }
+  @keyframes glowRoam2 {
+    0%   { top: 70vh; left: 80%; opacity: 0; transform: scale(1); }
+    4%   { top: 70vh; left: 80%; opacity: 0.26; }
+    26%  { top: 70vh; left: 80%; opacity: 0.26; transform: scale(1.1); }
+    30%  { top: 70vh; left: 80%; opacity: 0; }
+    32%  { top: 5vh;  left: 60%; opacity: 0; transform: scale(1); }
+    36%  { top: 5vh;  left: 60%; opacity: 0.24; }
+    58%  { top: 5vh;  left: 60%; opacity: 0.24; transform: scale(0.92); }
+    62%  { top: 5vh;  left: 60%; opacity: 0; }
+    64%  { top: 40vh; left: 6%;  opacity: 0; transform: scale(1); }
+    68%  { top: 40vh; left: 6%;  opacity: 0.26; }
+    94%  { top: 40vh; left: 6%;  opacity: 0.26; transform: scale(1.08); }
+    98%  { top: 40vh; left: 6%;  opacity: 0; }
+    100% { top: 70vh; left: 80%; opacity: 0; }
+  }
+  @keyframes glowRoam3 {
+    0%   { top: 45vh; left: 70%; opacity: 0; transform: scale(1); }
+    4%   { top: 45vh; left: 70%; opacity: 0.26; }
+    26%  { top: 45vh; left: 70%; opacity: 0.26; transform: scale(1.08); }
+    30%  { top: 45vh; left: 70%; opacity: 0; }
+    32%  { top: 85vh; left: 30%; opacity: 0; transform: scale(1); }
+    36%  { top: 85vh; left: 30%; opacity: 0.24; }
+    58%  { top: 85vh; left: 30%; opacity: 0.24; transform: scale(0.9); }
+    62%  { top: 85vh; left: 30%; opacity: 0; }
+    64%  { top: 10vh; left: 20%; opacity: 0; transform: scale(1); }
+    68%  { top: 10vh; left: 20%; opacity: 0.26; }
+    94%  { top: 10vh; left: 20%; opacity: 0.26; transform: scale(1.1); }
+    98%  { top: 10vh; left: 20%; opacity: 0; }
+    100% { top: 45vh; left: 70%; opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glow { animation: none; opacity: 0.22; }
+    .glow-a { top: -5vh; left: 4%; }
+    .glow-b { top: 70vh; left: 80%; }
+    .glow-c { top: 45vh; left: 70%; }
+  }
 
   .topbar { position: relative; z-index: 3; width: 100%; max-width: 760px; display: flex;
     align-items: center; justify-content: space-between; }
@@ -105,7 +153,7 @@
 
   .tabs { position: relative; z-index: 1; margin-top: 26px; display: flex; gap: 4px; padding: 6px 14px;
     border-radius: 999px; background: rgba(16,20,31,0.05); border: 1px solid var(--divider);
-    overflow-x: auto; scrollbar-width: none; }
+    overflow-x: auto; scrollbar-width: none; justify-content: center; }
   .tabs::-webkit-scrollbar { display: none; }
   .tab-indicator { position: absolute; top: 6px; bottom: 6px; left: 0; width: 80px; border-radius: 999px;
     background: linear-gradient(155deg, var(--glass-strong), var(--glass)); border: 1px solid var(--glass-border);
