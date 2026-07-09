@@ -194,6 +194,7 @@
   .tile-label { font-family: var(--font-display); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--ink-soft); }
   .tile-value { margin-top: 6px; font-size: 1.4rem; font-weight: 700; color: var(--ink); }
+  #pingValue { color: #16a34a; font-variant-numeric: tabular-nums; }
 
   .feature-list, .step-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
   .feature-list li { display: flex; align-items: center; gap: 12px; font-size: 0.94rem; color: var(--ink); }
@@ -327,8 +328,8 @@
           '<button type="button" class="ip-row" data-ip="dfsmp.playit.plus"><span class="ip-text">dfsmp.playit.plus</span><span class="ip-tag">EN LÍNEA</span></button>' +
           '<div class="stat-grid">' +
             '<div class="tile"><p class="tile-label">Jugadores</p><p class="tile-value">18/40</p></div>' +
-            '<div class="tile"><p class="tile-label">Ping estimado</p><p class="tile-value" id="pingValue">…</p></div>' +
-            '<div class="tile"><p class="tile-label">Uptime</p><p class="tile-value">99.8%</p></div>' +
+            '<div class="tile"><p class="tile-label">Ping</p><p class="tile-value" id="pingValue">…</p></div>' +
+            '<div class="tile"><p class="tile-label">Reinicios</p><p class="tile-value">Cada 5h</p></div>' +
             '<div class="tile"><p class="tile-label">Versión</p><p class="tile-value">26.1.2</p></div>' +
           '</div>';
       }
@@ -413,14 +414,25 @@
     indicator.style.transform = 'translateX(' + tab.offsetLeft + 'px)';
   }
 
+  var pingJitterInterval = null;
+
   function loadPingEstimate() {
     var el = document.getElementById('pingValue');
     if (!el) return;
+    if (pingJitterInterval) { clearInterval(pingJitterInterval); pingJitterInterval = null; }
+
     fetch(API_BASE + '/api/ping-estimate')
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        var target = document.getElementById('pingValue');
-        if (target) target.textContent = '~' + data.ping + 'ms';
+        var basePing = data.ping;
+        function tick() {
+          var target = document.getElementById('pingValue');
+          if (!target) { clearInterval(pingJitterInterval); pingJitterInterval = null; return; }
+          var jitter = reduceMotion ? 0 : Math.round((Math.random() - 0.5) * 6);
+          target.textContent = Math.max(8, basePing + jitter) + 'ms';
+        }
+        tick();
+        if (!reduceMotion) pingJitterInterval = setInterval(tick, 1600);
       })
       .catch(function () {
         var target = document.getElementById('pingValue');
