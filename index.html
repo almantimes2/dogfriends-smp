@@ -327,7 +327,7 @@
           '<button type="button" class="ip-row" data-ip="dfsmp.playit.plus"><span class="ip-text">dfsmp.playit.plus</span><span class="ip-tag">EN LÍNEA</span></button>' +
           '<div class="stat-grid">' +
             '<div class="tile"><p class="tile-label">Jugadores</p><p class="tile-value">18/40</p></div>' +
-            '<div class="tile"><p class="tile-label">Ping</p><p class="tile-value">34ms</p></div>' +
+            '<div class="tile"><p class="tile-label">Ping estimado</p><p class="tile-value" id="pingValue">…</p></div>' +
             '<div class="tile"><p class="tile-label">Uptime</p><p class="tile-value">99.8%</p></div>' +
             '<div class="tile"><p class="tile-label">Versión</p><p class="tile-value">26.1.2</p></div>' +
           '</div>';
@@ -400,6 +400,7 @@
     }).join('') + '</div>';
   }
 
+  var API_BASE = 'https://dogfriends-shop-backend.vercel.app';
   var panel = document.getElementById('panel');
   var panelFrame = document.getElementById('panelFrame');
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
@@ -410,6 +411,21 @@
   function moveIndicator(tab) {
     indicator.style.width = tab.offsetWidth + 'px';
     indicator.style.transform = 'translateX(' + tab.offsetLeft + 'px)';
+  }
+
+  function loadPingEstimate() {
+    var el = document.getElementById('pingValue');
+    if (!el) return;
+    fetch(API_BASE + '/api/ping-estimate')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var target = document.getElementById('pingValue');
+        if (target) target.textContent = '~' + data.ping + 'ms';
+      })
+      .catch(function () {
+        var target = document.getElementById('pingValue');
+        if (target) target.textContent = 'N/D';
+      });
   }
 
   function attachIpCopy(root) {
@@ -443,6 +459,7 @@
 
       panel.innerHTML = DATA[key].render();
       attachIpCopy(panel);
+      if (key === 'home') loadPingEstimate();
 
       if (!skipTransition && !reduceMotion) {
         var endHeight = panel.scrollHeight;
@@ -498,7 +515,6 @@
   }
 
   var MP_PUBLIC_KEY = 'APP_USR-7b5fee35-2932-4071-9ae9-6f8e2dedfc3c';
-  var API_BASE = 'https://dogfriends-shop-backend.vercel.app';
   var mpInstance = null;
   var brickController = null;
   var lastFocused = null;
