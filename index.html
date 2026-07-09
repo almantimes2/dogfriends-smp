@@ -88,7 +88,7 @@
     line-height: 1.2; color: var(--ink); text-wrap: balance; }
   .console-head .sub { margin-top: 12px; max-width: 46ch; font-size: 0.96rem; color: var(--ink-soft); }
 
-  .tabs { position: relative; z-index: 1; margin-top: 26px; display: flex; gap: 4px; padding: 6px;
+  .tabs { position: relative; z-index: 1; margin-top: 26px; display: flex; gap: 4px; padding: 6px 14px;
     border-radius: 999px; background: rgba(16,20,31,0.05); border: 1px solid var(--divider);
     overflow-x: auto; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
@@ -172,9 +172,11 @@
     -webkit-backdrop-filter: blur(6px); padding: 20px; }
   .checkout-overlay[hidden] { display: none; }
   .checkout-modal { position: relative; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+    scrollbar-width: none;
     background: var(--glass-strong); border: 1px solid var(--glass-border); border-radius: 26px;
     padding: 30px 24px 24px; box-shadow: 0 30px 70px var(--glass-shadow);
     backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); }
+  .checkout-modal::-webkit-scrollbar { display: none; }
   .checkout-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%;
     border: 1px solid var(--divider); background: var(--glass-tile); color: var(--ink); cursor: pointer;
     font-size: 0.9rem; line-height: 1; }
