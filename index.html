@@ -160,11 +160,38 @@
   .placeholder-note { font-size: 0.9rem; color: var(--ink-soft); border: 1px dashed var(--divider);
     border-radius: 16px; padding: 16px 18px; }
 
+  .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .product-card { background: var(--glass-tile); border: 1px solid var(--divider); border-radius: 18px;
+    padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .product-title { font-size: 0.92rem; font-weight: 600; color: var(--ink); }
+  .product-price { font-size: 1.05rem; font-weight: 700; color: var(--accent); }
+  .product-buy { padding: 10px 18px; font-size: 0.8rem; margin-top: 2px; }
+
+  .checkout-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center;
+    justify-content: center; background: rgba(10,12,18,0.45); backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px); padding: 20px; }
+  .checkout-overlay[hidden] { display: none; }
+  .checkout-modal { position: relative; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+    background: var(--glass-strong); border: 1px solid var(--glass-border); border-radius: 26px;
+    padding: 30px 24px 24px; box-shadow: 0 30px 70px var(--glass-shadow);
+    backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); }
+  .checkout-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%;
+    border: 1px solid var(--divider); background: var(--glass-tile); color: var(--ink); cursor: pointer;
+    font-size: 0.9rem; line-height: 1; }
+  .checkout-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .checkout-eyebrow { font-family: var(--font-display); font-weight: 600; font-size: 0.7rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent); }
+  .checkout-modal h2 { font-size: 1.25rem; font-weight: 700; margin-top: 4px; text-wrap: balance; }
+  .checkout-price { margin-top: 4px; font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+  #cardPaymentBrick_container { margin-top: 14px; }
+  .checkout-status { margin-top: 12px; font-size: 0.88rem; color: var(--ink-soft); min-height: 1.2em; }
+
   .fineprint { position: relative; z-index: 2; font-size: 0.8rem; color: var(--ink-faint); text-align: center; }
 
   @media (max-width: 480px) {
     .console { border-radius: 26px; }
     .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .shop-grid { grid-template-columns: 1fr; }
   }
 </style>
 
@@ -196,6 +223,7 @@
       <button class="tab" role="tab" type="button" data-key="rules" aria-selected="false" id="tab-rules">Normas</button>
       <button class="tab" role="tab" type="button" data-key="keys" aria-selected="false" id="tab-keys">Llaves</button>
       <button class="tab" role="tab" type="button" data-key="ranks" aria-selected="false" id="tab-ranks">Rangos</button>
+      <button class="tab" role="tab" type="button" data-key="extras" aria-selected="false" id="tab-extras">Extras</button>
     </nav>
 
     <div class="panel-frame">
@@ -204,6 +232,17 @@
   </main>
 
   <footer class="fineprint">Dogfriends SMP — servidor de fans, no afiliado a Mojang ni Microsoft.</footer>
+</div>
+
+<div class="checkout-overlay" id="checkoutOverlay" hidden>
+  <div class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+    <button type="button" class="checkout-close" id="checkoutClose" aria-label="Cerrar">✕</button>
+    <p class="checkout-eyebrow">COMPRAR</p>
+    <h2 id="checkoutTitle" class="display"></h2>
+    <p class="checkout-price mono" id="checkoutPrice"></p>
+    <div id="cardPaymentBrick_container"></div>
+    <p class="checkout-status" id="checkoutStatus" role="status" aria-live="polite"></p>
+  </div>
 </div>
 
 <script>
@@ -243,16 +282,49 @@
       }
     },
     keys: {
-      render: function () {
-        return '<p class="placeholder-note">Pendiente: añade aquí los tipos de llaves del servidor y qué desbloquea cada una.</p>';
-      }
+      render: function () { return renderProducts(PRODUCTS.llaves); }
     },
     ranks: {
-      render: function () {
-        return '<p class="placeholder-note">Pendiente: añade aquí los rangos del servidor y los beneficios de cada uno.</p>';
-      }
+      render: function () { return renderProducts(PRODUCTS.rangos); }
+    },
+    extras: {
+      render: function () { return renderProducts(PRODUCTS.extras); }
     }
   };
+
+  var PRODUCTS = {
+    llaves: [
+      { id: 'llave-mythic', title: 'Llave Mythic', price: 20 },
+      { id: 'llave-claud', title: 'Llave Claud', price: 20 },
+      { id: 'llave-spawner', title: 'Llave Spawner', price: 20 }
+    ],
+    rangos: [
+      { id: 'vip-mensual', title: 'Rango VIP (mensual)', price: 75 },
+      { id: 'vip-plus-mensual', title: 'Rango VIP+ (mensual)', price: 150 },
+      { id: 'elite', title: 'Rango Elite', price: 250 }
+    ],
+    extras: [
+      { id: 'chatcolor-gradient', title: 'ChatColor Gradient', price: 20 },
+      { id: 'starter-pack', title: 'Starter Pack', price: 120 }
+    ]
+  };
+
+  function findProduct(id) {
+    var all = PRODUCTS.llaves.concat(PRODUCTS.rangos, PRODUCTS.extras);
+    for (var i = 0; i < all.length; i++) { if (all[i].id === id) return all[i]; }
+    return null;
+  }
+
+  function renderProducts(list) {
+    return '<div class="shop-grid">' + list.map(function (p) {
+      return '' +
+        '<div class="product-card">' +
+          '<p class="product-title">' + p.title + '</p>' +
+          '<p class="product-price mono">$' + p.price + ' MXN</p>' +
+          '<button type="button" class="pill pill-solid pill--shine product-buy" data-id="' + p.id + '">Comprar</button>' +
+        '</div>';
+    }).join('') + '</div>';
+  }
 
   var panel = document.getElementById('panel');
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
@@ -312,6 +384,13 @@
     });
   });
 
+  panel.addEventListener('click', function (e) {
+    var btn = e.target.closest('.product-buy');
+    if (!btn) return;
+    var product = findProduct(btn.getAttribute('data-id'));
+    if (product) openCheckout(product);
+  });
+
   selectTab(tabs[0], true);
   window.addEventListener('load', function () { moveIndicator(activeTab); });
   window.addEventListener('resize', function () { moveIndicator(activeTab); });
@@ -329,4 +408,89 @@
       glare.style.background = 'radial-gradient(circle at 50% 12%, rgba(255,255,255,0.4), transparent 55%)';
     });
   }
+
+  var MP_PUBLIC_KEY = 'APP_USR-576ebeea-2590-4a5f-8b9d-ea5c09f57498';
+  var API_BASE = 'https://dogfriends-shop-backend.vercel.app';
+  var mpInstance = null;
+  var brickController = null;
+  var lastFocused = null;
+
+  var overlay = document.getElementById('checkoutOverlay');
+  var checkoutTitleEl = document.getElementById('checkoutTitle');
+  var checkoutPriceEl = document.getElementById('checkoutPrice');
+  var checkoutStatusEl = document.getElementById('checkoutStatus');
+  var checkoutCloseBtn = document.getElementById('checkoutClose');
+
+  function setCheckoutStatus(msg) { checkoutStatusEl.textContent = msg; }
+
+  function loadMpSdk(cb) {
+    if (window.MercadoPago) return cb();
+    var s = document.createElement('script');
+    s.src = 'https://sdk.mercadopago.com/js/v2';
+    s.onload = cb;
+    s.onerror = function () { setCheckoutStatus('No se pudo cargar Mercado Pago. Intenta más tarde.'); };
+    document.head.appendChild(s);
+  }
+
+  function openCheckout(product) {
+    lastFocused = document.activeElement;
+    checkoutTitleEl.textContent = product.title;
+    checkoutPriceEl.textContent = '$' + product.price + ' MXN';
+    setCheckoutStatus('Cargando formulario de pago…');
+    overlay.hidden = false;
+    checkoutCloseBtn.focus();
+
+    loadMpSdk(function () {
+      if (!mpInstance) mpInstance = new MercadoPago(MP_PUBLIC_KEY, { locale: 'es-MX' });
+      if (brickController) { brickController.unmount(); brickController = null; }
+      setCheckoutStatus('');
+      mpInstance.bricks().create('cardPayment', 'cardPaymentBrick_container', {
+        initialization: { amount: product.price },
+        callbacks: {
+          onReady: function () {},
+          onSubmit: function (cardFormData) {
+            setCheckoutStatus('Procesando pago…');
+            return fetch(API_BASE + '/api/create-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: product.title,
+                unit_price: product.price,
+                quantity: 1,
+                token: cardFormData.token,
+                payment_method_id: cardFormData.payment_method_id,
+                installments: cardFormData.installments,
+                payer_email: cardFormData.payer && cardFormData.payer.email
+              })
+            })
+              .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+              .then(function (result) {
+                if (result.ok) {
+                  setCheckoutStatus('¡Pago recibido! Escríbenos en Discord con tu correo para que te entreguen "' + product.title + '".');
+                } else {
+                  setCheckoutStatus('No se pudo procesar el pago. Revisa los datos e intenta de nuevo.');
+                }
+              })
+              .catch(function () { setCheckoutStatus('Error de conexión. Intenta de nuevo.'); });
+          },
+          onError: function (err) {
+            console.error(err);
+            setCheckoutStatus('Ocurrió un error con el formulario de pago.');
+          }
+        }
+      }).then(function (controller) { brickController = controller; });
+    });
+  }
+
+  function closeCheckout() {
+    overlay.hidden = true;
+    if (brickController) { brickController.unmount(); brickController = null; }
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  checkoutCloseBtn.addEventListener('click', closeCheckout);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeCheckout(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !overlay.hidden) closeCheckout();
+  });
 </script>
